@@ -1,9 +1,10 @@
-import { getCustomRepository } from 'typeorm';
+import { getCustomRepository, getRepository } from 'typeorm';
 
 import AppError from '../errors/AppError';
 import TransactionsRepository from '../repositories/TransactionsRepository';
-import Category from '../models/Category';
+
 import Transaction from '../models/Transaction';
+import Category from '../models/Category';
 
 interface Request {
   title: string;
@@ -20,22 +21,39 @@ class CreateTransactionService {
     category,
   }: Request): Promise<Transaction> {
     const transactionsRepository = getCustomRepository(TransactionsRepository);
-    const categoryRepository = getCustomRepository(Category);
+    const categoriesRepository = getRepository(Category);
 
-    const findCategoryID = await categoryRepository.findOne({
-      where: { category },
+    if (!['outcome', 'income'].includes(type)) {
+      throw new AppError('Transaction invalid');
+    }
+
+    const balance = await transactionsRepository.getBalance();
+
+    if (balance.total < value && type === 'outcome') {
+      throw new AppError('Out of money');
+    }
+
+    let categoryTransaction = await categoriesRepository.findOne({
+      where: { title: category },
     });
 
-    if (!findCategoryID) {
-      categoryRepository.creat
+    if (!categoryTransaction) {
+      categoryTransaction = categoriesRepository.create({
+        title: category,
+      });
+      await categoriesRepository.save(categoryTransaction);
     }
 
     const transaction = transactionsRepository.create({
       title,
       value,
       type,
-      category_id,
+      category: categoryTransaction,
     });
+
+    if (!transaction) {
+      throw new AppError('Transaction not found', 404);
+    }
 
     await transactionsRepository.save(transaction);
 

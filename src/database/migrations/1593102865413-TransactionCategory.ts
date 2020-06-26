@@ -1,4 +1,4 @@
-import {MigrationInterface, QueryRunner, TableForeignKey } from "typeorm";
+import { MigrationInterface, QueryRunner, TableForeignKey } from 'typeorm';
 
 export default class TransactionCategory1593102865413
   implements MigrationInterface {
@@ -7,8 +7,8 @@ export default class TransactionCategory1593102865413
       'transactions',
       new TableForeignKey({
         name: 'TransactionCategory',
-        columnNames: ['category'],
-        referencedColumnNames: ['title'],
+        columnNames: ['category_id'],
+        referencedColumnNames: ['id'],
         referencedTableName: 'categories',
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
