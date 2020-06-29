@@ -5,7 +5,7 @@ import multer from 'multer';
 import TransactionsRepository from '../repositories/TransactionsRepository';
 import CreateTransactionService from '../services/CreateTransactionService';
 import DeleteTransactionService from '../services/DeleteTransactionService';
-import ImportTransactionsService from '../services/ImportTransactionsService';
+import ImportTransactionsService from '../services/ImportTransactionsServicecopy';
 
 import uploadConfig from '../config/upload';
 
@@ -58,6 +58,7 @@ transactionsRouter.post(
     const transactions = await importTransactions.execute(request.file.path);
 
     return response.json(transactions);
-});
+  },
+);
 
 export default transactionsRouter;
